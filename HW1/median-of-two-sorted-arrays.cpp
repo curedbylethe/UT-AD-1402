@@ -7,14 +7,35 @@
 using IntArray = std::unique_ptr<std::vector<int>>;
 using ArraySize = size_t;
 using Median = std::variant<int, double>;
-auto MakeNewIntArray = [](ArraySize size) -> IntArray {
-    return std::make_unique<std::vector<int>>(size);
-};
 
-enum class ArraySplit {
-    FIRST,
-    SECOND
-};
+namespace Utils {
+    auto isInt = [](Median number) -> bool {
+        return std::holds_alternative<int>(number);
+    };
+
+    auto printMedianVariant = [](const Median number) -> void {
+        if (isInt(number)) {
+            std::cout << std::get<int>(number);
+        } else {
+            std::cout << std::get<double>(number);
+        }
+    };
+
+    auto insertValues = [](IntArray &array, ArraySize size) -> void {
+        for (ArraySize i = 0; i < size; ++i) {
+            std::cin >> array->at(i);
+        }
+    };
+
+    auto newIntArray = [](ArraySize size) -> IntArray {
+        return std::make_unique<std::vector<int>>(size);
+    };
+
+    enum class ArraySplit {
+        FIRST_HALF,
+        SECOND_HALF,
+    };
+}
 
 namespace Algorithm {
     int findMedianOfASortedArray(const IntArray &array) {
@@ -26,12 +47,12 @@ namespace Algorithm {
         }
     }
 
-    IntArray splitArray(const IntArray &array, ArraySplit split) {
+    IntArray splitArray(const IntArray &array, Utils::ArraySplit split) {
         ArraySize oldSize = array->size();
         ArraySize newSize = std::ceil(oldSize / 2.0);
-        IntArray newArray = MakeNewIntArray(newSize);
+        IntArray newArray = Utils::newIntArray(newSize);
         for (ArraySize i = 0; i < newSize; ++i) {
-            if (split == ArraySplit::FIRST) {
+            if (split == Utils::ArraySplit::FIRST_HALF) {
                 newArray->at(i) = array->at(i);
             } else {
                 newArray->at(i) = array->at(oldSize / 2 + i);
@@ -54,9 +75,11 @@ namespace Algorithm {
         if (firstArrayMedian == secondArrayMedian) {
             return firstArrayMedian;
         } else if (firstArrayMedian < secondArrayMedian) {
-            return findMedian(splitArray(firstArray, ArraySplit::SECOND), splitArray(secondArray, ArraySplit::FIRST));
+            return findMedian(splitArray(firstArray, Utils::ArraySplit::SECOND_HALF),
+                              splitArray(secondArray, Utils::ArraySplit::FIRST_HALF));
         } else {
-            return findMedian(splitArray(firstArray, ArraySplit::FIRST), splitArray(secondArray, ArraySplit::SECOND));
+            return findMedian(splitArray(firstArray, Utils::ArraySplit::FIRST_HALF),
+                              splitArray(secondArray, Utils::ArraySplit::SECOND_HALF));
         }
     }
 }
@@ -82,15 +105,11 @@ private:
         ArraySize secondArraySize;
         std::cin >> secondArraySize;
 
-        firstArray = MakeNewIntArray(firstArraySize);
-        for (ArraySize i = 0; i < firstArraySize; ++i) {
-            std::cin >> firstArray->at(i);
-        }
+        firstArray = Utils::newIntArray(firstArraySize);
+        Utils::insertValues(firstArray, firstArraySize);
 
-        secondArray = MakeNewIntArray(secondArraySize);
-        for (ArraySize i = 0; i < secondArraySize; ++i) {
-            std::cin >> secondArray->at(i);
-        }
+        secondArray = Utils::newIntArray(secondArraySize);
+        Utils::insertValues(secondArray, secondArraySize);
     }
 
     void findMedian() {
@@ -98,11 +117,7 @@ private:
     }
 
     void printMedian() {
-        if (std::holds_alternative<int>(median)) {
-            std::cout << std::get<int>(median);
-        } else {
-            std::cout << std::get<double>(median);
-        }
+        Utils::printMedianVariant(median);
     }
 };
 
