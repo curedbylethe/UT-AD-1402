@@ -2,7 +2,6 @@
 #include <iostream>
 #include <vector>
 #include <variant>
-#include <cmath>
 
 using IntArray = std::unique_ptr<std::vector<int>>;
 using ArraySize = size_t;
