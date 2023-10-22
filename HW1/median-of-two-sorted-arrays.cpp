@@ -61,25 +61,37 @@ namespace Algorithm {
         return newArray;
     }
 
-    int findMedian(const IntArray &firstArray, const IntArray &secondArray) {
-        if (firstArray->empty()) {
-            return findMedianOfASortedArray(secondArray);
-        } else if (secondArray->empty()) {
-            return findMedianOfASortedArray(firstArray);
+    Median findMedian(IntArray &firstArray, IntArray &secondArray) {
+        Median result = 0;
+
+        while (true) {
+            if (firstArray->empty()) {
+                result = findMedianOfASortedArray(secondArray);
+                break;
+            } else if (secondArray->empty()) {
+                result = findMedianOfASortedArray(firstArray);
+                break;
+            } else if (firstArray->size() == 1 && secondArray->size() == 1) {
+                result = (firstArray->at(0) + secondArray->at(0)) / 2.0;
+                break;
+            }
+
+            int firstArrayMedian = findMedianOfASortedArray(firstArray);
+            int secondArrayMedian = findMedianOfASortedArray(secondArray);
+
+            if (firstArrayMedian == secondArrayMedian) {
+                result = firstArrayMedian;
+                break;
+            } else if (firstArrayMedian < secondArrayMedian) {
+                firstArray = splitArray(firstArray, Utils::ArraySplit::SECOND_HALF);
+                secondArray = splitArray(secondArray, Utils::ArraySplit::FIRST_HALF);
+            } else {
+                firstArray = splitArray(firstArray, Utils::ArraySplit::FIRST_HALF);
+                secondArray = splitArray(secondArray, Utils::ArraySplit::SECOND_HALF);
+            }
         }
 
-        int firstArrayMedian = findMedianOfASortedArray(firstArray);
-        int secondArrayMedian = findMedianOfASortedArray(secondArray);
-
-        if (firstArrayMedian == secondArrayMedian) {
-            return firstArrayMedian;
-        } else if (firstArrayMedian < secondArrayMedian) {
-            return findMedian(splitArray(firstArray, Utils::ArraySplit::SECOND_HALF),
-                              splitArray(secondArray, Utils::ArraySplit::FIRST_HALF));
-        } else {
-            return findMedian(splitArray(firstArray, Utils::ArraySplit::FIRST_HALF),
-                              splitArray(secondArray, Utils::ArraySplit::SECOND_HALF));
-        }
+        return result;
     }
 }
 
