@@ -48,13 +48,13 @@ namespace Algorithm {
 
     IntArray splitArray(const IntArray &array, Utils::ArraySplit split) {
         ArraySize oldSize = array->size();
-        ArraySize newSize = std::ceil(oldSize / 2.0);
+        ArraySize newSize = oldSize / 2;
         IntArray newArray = Utils::newIntArray(newSize);
         for (ArraySize i = 0; i < newSize; ++i) {
             if (split == Utils::ArraySplit::FIRST_HALF) {
                 newArray->at(i) = array->at(i);
             } else {
-                newArray->at(i) = array->at(oldSize / 2 + i);
+                newArray->at(i) = array->at((oldSize / 2) + oldSize % 2 + i);
             }
         }
 
